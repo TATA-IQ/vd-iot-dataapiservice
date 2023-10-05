@@ -1,0 +1,7 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import Union
+class KafkaTopics(BaseModel):
+    
+    camera_group_id: Union[tuple, None] = None
+    

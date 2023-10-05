@@ -1,0 +1,295 @@
+from fastapi import FastAPI
+from config_parser.parser import Config
+import logging
+from logging.handlers import TimedRotatingFileHandler
+from model.camera_config_model import CameraDetails, CameraConfig
+from model.camera_group_model import CameraGroup
+from model.model_config_model import ModelConfig
+from model.model_master_model import ModelMasterEndpoint, ModelMaster
+from model.preprocess_model import PreprocessConfig
+from model.schedule_model import ScheduleMaster
+from model.usecase_model import UseCaseModel
+from model.model_validate_model import ModelValidation
+from model.post_process_model import PostProcessConf, PostProcessClass, PostProcessIncident, PostProcessComputation, PostProcessBoundary
+from model.incidentvideo_model import IncidentVideo
+from src.get_cameragroup import GetModelCamGroup
+from src.get_cameraconfig import GetCameraConfigData
+from src.get_preprocessconfig import GetPreProcessConfigData
+from src.get_schedulingconfig import GetScheduleMaster
+from src.get_cameraextract import GetCameraFrames
+from src.get_modelmaster import GetModelMasterById
+from src.post_updatemodelurl import UpdateEndPoint
+from src.get_boundary import GetBoundaryData
+from src.get_classes import GetClassesData
+from src.get_computation import GetComputationData
+from src.get_incidents import GetIncidentData
+from src.get_postprocess import GetPostProcessConfigData
+from src.get_usecase import GetUsecase
+from src.get_kafkatopics import GetKafkaData
+from src.get_incident_video_config import GetIncidentVideoData
+from src.get_model_validation import ValidationModel
+from model.kafka_model import KafkaTopics
+from model.model_port_model import ModelPorts
+from src.get_port_details import GetPortDetails
+from src.post_updateportmodel import UpdateModelPort
+
+
+import mysql.connector
+
+config = Config.yamlconfig("config/config.yaml")[0]
+dbconfig=config["db"]
+validateconfig=config["validation_api"]
+print(dbconfig)
+
+def connection_sql():
+        cnx = mysql.connector.connect(
+        user=dbconfig["username"],
+        password=dbconfig["password"],
+        host=dbconfig["host"],
+        database=dbconfig["db"],
+        )
+        return cnx
+
+app = FastAPI()
+
+
+@app.get("/getCameraGroup")
+async def model_cameragroup_fetch(data: CameraGroup):
+    """
+    This endpoint fetches tcom camera group data.
+
+    Args:
+            data (object): Tcom_CameraGroup data object with parameters.
+            - location_id (int): location id to filter camera groups.
+            - customer_id (int): customer id  to filter.
+            - subsite_id (int): subsite id to filter.
+
+    Returns:
+            FastAPI JSONResponse of camera group data.
+    """
+    print("-----------cameragroup------------")
+    cnx=connection_sql()
+    print("=====",data)
+    return GetModelCamGroup.get_data(
+        cnx, data.location_id, data.customer_id, data.subsite_id, data.zone_id
+    )
+
+
+@app.get("/getCameraConfig")
+async def camera_config_fetch(data: CameraConfig):
+    cnx=connection_sql()
+    data = GetCameraConfigData.get_data(
+        cnx, data.camera_group_id
+    )
+    cnx.close()
+    return data
+
+
+@app.post("/updateEndpoint")
+async def endpoint_update(data: ModelMasterEndpoint):
+    cnx=connection_sql()
+
+    print("update===>", data)
+    print("*******", data.model_end_point)
+    print("*******", data.model_id)
+    data= UpdateEndPoint.update(cnx, data.model_end_point, data.model_id)
+    cnx.close()
+    return data
+
+@app.get("/getusecase")
+async def usecase_fetch():
+    cnx=connection_sql()
+    data = GetUsecase.get_data(cnx)
+    cnx.close()
+    return data
+
+
+@app.get("/getModelMasterbyId")
+async def model_master_by_id_fetch(data: ModelMaster):
+    """
+    This endpoint fetches Model Master data for a given model id.
+    Args:
+    Returns:
+            FastAPI JSONResponse of Model Master data.
+    """
+    cnx=connection_sql()
+    data =GetModelMasterById.get_data(cnx, data.model_id)
+    cnx.close()
+    return data
+
+
+# @app.get("/getModelConfigbyId")
+# async def ModelConfigById_fetch(data: ModelConfig):
+#     """
+#     This endpoint fetches Model config data for a given model id.
+#     Args:
+#     Returns:
+#             FastAPI JSONResponse of Model config data.
+#     """
+
+#     cnx=connection_sql()
+#     if data.location_id != None and data.model_id != None:
+#         return GetModelConfigById.get_data(cnx, data.model_id, data.location_id)
+#     else:
+#         return GetModelConfigById.get_data(cnx, data.model_id)
+
+
+@app.get("/getScheduleMaster")
+async def schedule_master_fetch(data: ScheduleMaster):
+    """
+    This endpoint fetches schedule master data.
+    Args:
+    Returns:
+            FastAPI JSONResponse of schedule master data.
+    """
+    print("====schedule=====")
+    cnx=connection_sql()
+    data= GetScheduleMaster.get_data(cnx, data.camera_group_id)
+    cnx.close()
+    return data
+
+
+
+@app.get("/getPreprocessConfig")
+async def preprocess_config_fetch(data: PreprocessConfig):
+    cnx=connection_sql()
+    data= GetPreProcessConfigData.get_data(cnx, data.camera_group_id)
+    cnx.close()
+    return data
+
+
+@app.get("/getModelMasterbyId")
+async def model_master_by_id_fetch(data:ModelMaster):
+        """
+        This endpoint fetches Model Master data for a given model id. 
+        Args:
+        Returns:
+                FastAPI JSONResponse of Model Master data.
+        """
+        cnx=connection_sql()
+        return GetModelMasterById.get_data(cnx,data.model_id)
+
+
+@app.post("/updateEndpoint")
+async def endpoint_update(data:ModelMasterEndpoint):
+        cnx=connection_sql()
+
+        print("update===>",data)
+        print("*******",data.model_end_point)
+        print("*******",data.model_id)
+        data= UpdateEndPoint.update(cnx,data.model_end_point,data.model_id)
+        cnx.close()
+        return data
+
+
+@app.get("/getpostprocess")
+async def post_process_config_fetch(data:PostProcessConf):
+        cnx=connection_sql()
+
+        print("update===>",data)
+        #print("*******",data.camera_group_id)
+        
+        data= GetPostProcessConfigData.get_data(cnx,data.usecase_id)
+        cnx.close()
+        return data
+
+
+@app.get("/getclasses")
+async def post_process_class_fetch(data:PostProcessClass):
+        cnx=connection_sql()
+
+        print("update===>",data)
+        print("*******",data.usecase_id)
+        
+        data= GetClassesData.get_data(cnx,data.usecase_id)
+        cnx.close()
+        return data
+
+
+@app.get("/getincidents")
+async def post_process_incidents_fetch(data:PostProcessIncident):
+        cnx=connection_sql()
+
+        print("update===>",data)
+        print("*******",data.usecase_id)
+        
+        data= GetIncidentData.get_data(cnx,data.usecase_id)
+        cnx.close()
+        return data
+
+
+@app.get("/getcomputation")
+async def post_process_computation_fetch(data:PostProcessComputation):
+        cnx=connection_sql()
+
+        print("update===>",data)
+        print("*******",data.usecase_id)
+        
+        data= GetComputationData.get_data(cnx,data.usecase_id)
+        cnx.close()
+        return data
+
+
+@app.get("/getboundary")
+async def post_process_boundary_fetch(data:PostProcessBoundary):
+        cnx=connection_sql()
+
+        print("update===>",data)
+        print("*******",data.usecase_id)
+        
+        data= GetBoundaryData.get_data(cnx,data.usecase_id)
+        cnx.close()
+        return data
+
+@app.get("/gettopics")
+async def kafka_topics_fetch(data:KafkaTopics):
+        cnx=connection_sql()
+
+        print("update===>",data)
+        print("*******",data.camera_group_id)
+        
+        data= GetKafkaData.get_data(cnx,data.camera_group_id)
+        cnx.close()
+        return data
+
+@app.get("/modelvalidate")
+async def model_validate_fetch(data: ModelValidation):
+    
+    data = ValidationModel.get_data(validateconfig,
+        data.model_id, data.framework
+    )
+    
+    return data
+
+@app.get("/ports")
+async def model_ports_fetch(data: ModelPorts):
+    cnx=connection_sql()
+    print("data ",data.model_id)
+    data = GetPortDetails.get_data(cnx,data.model_id)
+    cnx.close()
+    return data
+@app.post("/updateports")
+async def model_ports_update(data: ModelPorts):
+        cnx=connection_sql()
+        data = UpdateModelPort.update(cnx,data.model_port,data.model_id)
+        cnx.close()
+        return data
+        
+@app.get("/preview")  # getCameraFrame
+async def CameraFrame_fetch(data: CameraDetails):
+#     cnx=connection_sql()
+    return GetCameraFrames.get_desired_frames(
+        data.rtsp_url, data.username, data.password
+    )
+
+@app.get("/getincidentvideoconf") 
+async def Incident_details_fetch(data: IncidentVideo):
+        print("*"*10)
+        print(data)
+        print(data.incident_video_id)
+        cnx=connection_sql()
+        data = GetIncidentVideoData.get_data(cnx,
+                data.incident_video_id
+        )
+        cnx.close()
+        return data
