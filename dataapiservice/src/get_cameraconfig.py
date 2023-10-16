@@ -49,6 +49,7 @@ class GetCameraConfigData():
                     dictdata["is_deleted"]=i[column_names.index('is_deleted')]
                     dictdata["location_id"]=i[column_names.index('location_id')]
                     dictdata["camera_grouplist_id"]=i[column_names.index('camera_grouplist_id')]
+                    dictdata["city_id"]=i[column_names.index('city_id')]
                     dictdata["camera_id"]=i[column_names.index('camera_id')]
                     dictdata["camera_name"]=i[column_names.index('camera_name')]
                     dictdata["fps"]=i[column_names.index('fps')]
