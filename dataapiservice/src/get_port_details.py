@@ -36,4 +36,5 @@ class GetPortDetails():
                 listresult.append(dictdata)
 
 
+        print("in GetPortDetails ",listresult)
         return {"data":listresult}

@@ -1,17 +1,18 @@
 class GetClassesData():
     def get_data(connection,usecase_id):
         query="""
-            SELECT us.usecase_id,us.step_no,us.step_name, us.step_type,cm.class_name as uc_class_name, umc.conf as uc_class_conf,
-            mcl.conf, mcl.uploaded_class_name, mcl.actual_class_id, cm.class_name, cm.class_description, mt.model_type_name, m.model_url,m.model_name, m.model_id,m.model_type_id,fw.framework_name, ppb.bound_color,ppb.bound_thickness,ppb.text_color, ppb.text_thickness 
-            FROM `tcl-dev`.usecase_step us
-            inner join usecase_model_conf umc on umc.usecase_step_id=us.id
-            inner join model m on m.model_id=us.model_id 
-            inner join framework fw on m.framework_id=fw.framework_id 
-            inner join model_type mt on mt.model_type_id = m.model_type_id
-            inner join model_class_link mcl on mcl.model_id=m.model_id and mcl.model_id=us.model_id
-            inner join class_master cm on cm.class_id=mcl.actual_class_id and umc.class_id=cm.class_id
-            inner join post_process_property ppb on ppb.bound_class_id=cm.class_id
-            where umc.is_deleted=0 and m.is_deleted=0 and us.is_deleted=0 and m.status=1
+            SELECT us.usecase_id,uts.step_no,uts.step_name, uts.step_type,cm.class_name as uc_class_name, umc.conf as uc_class_conf,
+	mcl.conf, mcl.uploaded_class_name, mcl.actual_class_id, cm.class_name, cm.class_description, mt.model_type_name, m.model_url,m.model_name, m.model_id,m.model_type_id,fw.framework_name, ppb.bound_color,ppb.bound_thickness,ppb.text_color, ppb.text_thickness 
+	FROM usecase_step us
+	inner join usecase_model_conf umc on umc.usecase_step_id=us.id
+    inner join usecase_template_step uts on uts.id = us.usecase_template_step_id
+	inner join model m on m.model_id=us.model_id 
+	inner join framework fw on m.framework_id=fw.framework_id 
+	inner join model_type mt on mt.model_type_id = m.model_type_id
+	inner join model_class_link mcl on mcl.model_id=m.model_id and mcl.model_id=us.model_id
+	inner join class_master cm on cm.class_id=mcl.actual_class_id and umc.class_id=cm.class_id
+	inner join post_process_property ppb on ppb.bound_class_id=cm.class_id
+	where umc.is_deleted=0 and m.is_deleted=0 and us.is_deleted=0
             and us.usecase_id= %s
         """
         listresult=[]

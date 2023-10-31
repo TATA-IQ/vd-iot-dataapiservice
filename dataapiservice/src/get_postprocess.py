@@ -20,14 +20,13 @@ class GetPostProcessConfigData():
         print("+++++",usecase_id)
                 
         query=f"""select pp.id,pp.image_size_height, pp.image_size_width, pp.legend, pp.name, pp.usecase_id,
-                 uc.usecase_id, uc.usecase_name, uc.usecase_description, uc.usecase_template_id, 
-                us.id, us.step_name, us.step_no, us.step_type, us.computation_id, us.model_id model_id
-                from post_process pp
-                
+                uc.usecase_id, uc.usecase_name, uc.usecase_description, uc.usecase_template_id,
+                us.id, uts.step_name, uts.step_type, uts.step_no,us.computation_id, us.model_id model_id
+                from post_process pp               
                 inner join usecase uc on uc.usecase_id=pp.usecase_id
                 inner join usecase_template ut on uc.usecase_template_id=ut.id
                 inner join usecase_template_step uts on uts.usecase_template_id=ut.id
-                inner join usecase_step us on uc.usecase_id=us.usecase_id and us.step_no=uts.step_no
+                inner join usecase_step us on uts.id=us.usecase_template_step_id and us.usecase_id=uc.usecase_id
                 where uc.usecase_id in {usecase_id}
                 """
         print(query)

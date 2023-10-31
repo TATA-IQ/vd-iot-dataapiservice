@@ -4,6 +4,7 @@ import json
 import base64
 import imutils
 from datetime import datetime
+# from jasypt4py import StandardPBEStringEncryptor
 
 class GetCameraFrames():
     def get_data(rtsp_url, username, password,logger=None):
@@ -66,9 +67,18 @@ class GetCameraFrames():
         return fastapi.responses.JSONResponse(content={"data":img_string})
 
     def create_url(url, username, password):
-        if password is None:
+        
+        # if password is not None or len(password)>0:
+            # cryptor = StandardPBEStringEncryptor('PBEWITHSHA256AND256BITAES-CBC')
+            # print("====password====", password)
+            
+            # # password = base64.b64encode(password)
+            # password = cryptor.decrypt(password,'123456$#@$^@1ERF',4000)
+            # password=StandardPBEStringEncryptor("123456$#@$^@1ERF",password,4000)  
+                      
+        if password is None or username is None:
             pass
-        elif len(password)<=1:
+        elif len(password)<=1 or len(username)<=1:
            pass
         else:
             if "rtsp://" in url:
@@ -111,13 +121,17 @@ class GetCameraFrames():
             while True:
                 ret,frame = cap.read()
                 height, width, channels = frame.shape
-                frame = imutils.resize(frame,width=int(width*0.20))
+                # frame = imutils.resize(frame,width=int(width*0.20))
                 if not ret:
                     print("there are no frames, waiting for the frames")
                     continue
                     # return fastapi.responses.JSONResponse(content={"data":None}) 
                 if frame_count % frame_interval==0:
                     fname = datetime.now().strftime("%Y_%m_%d_%H_%M_%S_%f")+".jpg"
+                    try:
+                        print(frame.shape)
+                    except:
+                        print("no image")
                     #cv2.imwrite()
                     img_string = base64.b64encode(cv2.imencode('.jpg', frame)[1]).decode()  
                     # imgstr = img_string.encode('utf8')               
@@ -130,8 +144,8 @@ class GetCameraFrames():
             # cap.release()
         except Exception as e:
             print(e)
-            return fastapi.responses.JSONResponse(content={"data":None,"status":0,"message":"couldn't connect to camera"})
+            return fastapi.responses.JSONResponse(content={"data":None,"width":None,"height":None,"status":0,"message":"couldn't connect to camera"})
         finally:
             cap.release()
             
-        return fastapi.responses.JSONResponse(content={"data":img_string,"status":1,"message":"connected to camera"})
+        return fastapi.responses.JSONResponse(content={"data":img_string,"width":width,"height":height,"status":1,"message":"connected to camera"})

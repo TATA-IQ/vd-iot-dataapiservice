@@ -12,7 +12,7 @@ com.upper_limit, com.lower_limit
                 left join incident_type it on it.incident_type_id=im.incident_type_id
                 left join computation com on com.incident_id= im.incident_id
                 
-            where  cm.is_deleted=0 and im.is_deleted=0 and it.is_deleted=0 
+            where  im.is_deleted=0 and it.is_deleted=0 
             and uil.usecase_id= %s
         """
 

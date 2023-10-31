@@ -5,7 +5,7 @@ class GetComputationData():
             cm.computation_id, cm.computation_name, cm.incident_id, cm.lower_limit, cm.tolerance, cm.upper_limit
             from usecase uc inner join usecase_template ut on uc.usecase_template_id=ut.id
             inner join usecase_template_step uts on uts.usecase_template_id=ut.id
-            inner join usecase_step us on uc.usecase_id=us.usecase_id and us.step_no=uts.step_no
+            inner join usecase_step us on uts.id=us.usecase_template_step_id
             inner join computation cm on cm.computation_id=us.computation_id
             where cm.is_deleted=0 and uc.is_deleted=0 
             and uc.usecase_id= %s

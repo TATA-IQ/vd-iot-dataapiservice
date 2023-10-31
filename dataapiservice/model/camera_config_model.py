@@ -4,6 +4,7 @@ from typing import Union
 
 
 class CameraDetails(BaseModel):
+    rtsp_ip: Union[str, None] = None
     rtsp_url: Union[str, None] = None
     username: Union[str, None] = None
     password: Union[str, None] = None

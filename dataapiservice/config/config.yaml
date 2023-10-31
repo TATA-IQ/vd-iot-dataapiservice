@@ -1,11 +1,11 @@
 db:
-  host: "172.16.0.170"
-  username: "root"
+  host: "172.16.0.214"
+  username: "vishal"
   db: "tcl-dev"
   password: "Welcome#123"
 
 validation_api:
-  yolov5: "http://172.16.0.178:8002/detection/yolov5/validate"
-  tensorflow: "http://172.16.0.178:8001/detection/tensorflow/validate"
-  yolov8: "http://172.16.0.178:8003/detection/yolov8/validate/"
-  paddleocr: "http://172.16.0.178:8004/detection/paddleocr/validate"
+  1: "http://172.16.0.204:8002/detection/yolov5/validate"
+  4: "http://172.16.0.204:8003/detection/tensorflow/validate"
+  2: "http://172.16.0.204:8001/detection/yolov8/validate"
+  3: "http://172.16.0.204:8004/detection/paddleocr/validate"

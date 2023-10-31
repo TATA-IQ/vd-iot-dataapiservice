@@ -12,7 +12,7 @@ class GetModelMasterById():
         query="""select * from model m inner join
          framework f on m.framework_id=f.framework_id 
          inner join model_type mt on mt.model_type_id = m.model_type_id
-         where model_id=%s and m.status=1"""
+         where model_id=%s"""
         
         
 

@@ -12,6 +12,7 @@ from model.usecase_model import UseCaseModel
 from model.model_validate_model import ModelValidation
 from model.post_process_model import PostProcessConf, PostProcessClass, PostProcessIncident, PostProcessComputation, PostProcessBoundary
 from model.incidentvideo_model import IncidentVideo
+from model.notification_model import notification_config,camera_config
 from src.get_cameragroup import GetModelCamGroup
 from src.get_cameraconfig import GetCameraConfigData
 from src.get_preprocessconfig import GetPreProcessConfigData
@@ -32,6 +33,10 @@ from model.kafka_model import KafkaTopics
 from model.model_port_model import ModelPorts
 from src.get_port_details import GetPortDetails
 from src.post_updateportmodel import UpdateModelPort
+from src.get_incident_summary_details import GetSummaryTimeDetails
+from src.post_updatesummary_time import UpdateIncidentSummaryTime
+from src.get_notificationconfig import GetNotificationDetails
+from model.incident_summary_time import SummaryTime
 
 
 import mysql.connector
@@ -49,6 +54,15 @@ def connection_sql():
         database=dbconfig["db"],
         )
         return cnx
+
+cnx=connection_sql()
+
+cnxpool = mysql.connector.pooling.MySQLConnectionPool(pool_name="mysqlpool", pool_size=5,
+                                                      user=dbconfig["username"],
+                                                      password=dbconfig["password"],
+                                                      host=dbconfig["host"],
+                                                      database=dbconfig["db"])
+
 
 app = FastAPI()
 
@@ -68,40 +82,79 @@ async def model_cameragroup_fetch(data: CameraGroup):
             FastAPI JSONResponse of camera group data.
     """
     print("-----------cameragroup------------")
-    cnx=connection_sql()
+#     cnx=connection_sql()
+#     cnx = cnxpool.get_connection()
+
     print("=====",data)
-    return GetModelCamGroup.get_data(
-        cnx, data.location_id, data.customer_id, data.subsite_id, data.zone_id
-    )
+    try:
+        cnx.cmd_refresh(1)
+        return GetModelCamGroup.get_data(
+                cnx, data.location_id, data.customer_id, data.subsite_id, data.zone_id
+        )
+    except:
+        cnx.reconnect()
+        cnx.cmd_refresh(1)
+        return GetModelCamGroup.get_data(
+                cnx, data.location_id, data.customer_id, data.subsite_id, data.zone_id
+        )
+
 
 
 @app.get("/getCameraConfig")
 async def camera_config_fetch(data: CameraConfig):
-    cnx=connection_sql()
-    data = GetCameraConfigData.get_data(
-        cnx, data.camera_group_id
-    )
-    cnx.close()
-    return data
+#     cnx=connection_sql()
+#     cnx = cnxpool.get_connection()
+    try:
+        #     cnx.close()
+        cnx.cmd_refresh(1)
+        data = GetCameraConfigData.get_data(
+                cnx, data.camera_group_id
+        )
+        return data
+    except:
+        cnx.reconnect()
+        cnx.cmd_refresh(1)
+        data = GetCameraConfigData.get_data(
+                cnx, data.camera_group_id
+        )
+        #     cnx.close()
+        return data
 
 
 @app.post("/updateEndpoint")
 async def endpoint_update(data: ModelMasterEndpoint):
-    cnx=connection_sql()
+#     cnx=connection_sql()
+#     cnx = cnxpool.get_connection()
 
     print("update===>", data)
     print("*******", data.model_end_point)
     print("*******", data.model_id)
-    data= UpdateEndPoint.update(cnx, data.model_end_point, data.model_id)
-    cnx.close()
-    return data
+#     cnx.close()
+    try:
+        cnx.cmd_refresh(1)
+        data= UpdateEndPoint.update(cnx, data.model_end_point, data.model_id)
+        return data
+    except:
+        cnx.reconnect()
+        cnx.cmd_refresh(1)
+        data= UpdateEndPoint.update(cnx, data.model_end_point, data.model_id)
+        return data
 
 @app.get("/getusecase")
 async def usecase_fetch():
-    cnx=connection_sql()
-    data = GetUsecase.get_data(cnx)
-    cnx.close()
-    return data
+#     cnx=connection_sql()
+#     cnx = cnxpool.get_connection()
+#     cnx.close()
+
+    try:
+        cnx.cmd_refresh(1)
+        data = GetUsecase.get_data(cnx)
+        return data
+    except:
+        cnx.reconnect()
+        cnx.cmd_refresh(1)
+        data = GetUsecase.get_data(cnx)
+        return data
 
 
 @app.get("/getModelMasterbyId")
@@ -112,10 +165,18 @@ async def model_master_by_id_fetch(data: ModelMaster):
     Returns:
             FastAPI JSONResponse of Model Master data.
     """
-    cnx=connection_sql()
-    data =GetModelMasterById.get_data(cnx, data.model_id)
-    cnx.close()
-    return data
+#     cnx=connection_sql()
+#     cnx = cnxpool.get_connection()
+#     cnx.close()
+    try:
+        cnx.cmd_refresh(1)
+        data =GetModelMasterById.get_data(cnx, data.model_id)
+        return data
+    except:
+        cnx.reconnect()
+        cnx.cmd_refresh(1)
+        data =GetModelMasterById.get_data(cnx, data.model_id)
+        return data
 
 
 # @app.get("/getModelConfigbyId")
@@ -127,7 +188,8 @@ async def model_master_by_id_fetch(data: ModelMaster):
 #             FastAPI JSONResponse of Model config data.
 #     """
 
-#     cnx=connection_sql()
+#     # # cnx=connection_sql()
+#      # #  cnx = cnxpool.get_connection()
 #     if data.location_id != None and data.model_id != None:
 #         return GetModelConfigById.get_data(cnx, data.model_id, data.location_id)
 #     else:
@@ -143,19 +205,36 @@ async def schedule_master_fetch(data: ScheduleMaster):
             FastAPI JSONResponse of schedule master data.
     """
     print("====schedule=====")
-    cnx=connection_sql()
-    data= GetScheduleMaster.get_data(cnx, data.camera_group_id)
-    cnx.close()
-    return data
+#     cnx=connection_sql()
+#     cnx = cnxpool.get_connection()
+#     cnx.close()
+
+    try:
+        cnx.cmd_refresh(1)
+        data= GetScheduleMaster.get_data(cnx, data.camera_group_id)
+        return data
+    except:
+        cnx.reconnect()
+        cnx.cmd_refresh(1)
+        data= GetScheduleMaster.get_data(cnx, data.camera_group_id)
+        return data
 
 
 
 @app.get("/getPreprocessConfig")
 async def preprocess_config_fetch(data: PreprocessConfig):
-    cnx=connection_sql()
-    data= GetPreProcessConfigData.get_data(cnx, data.camera_group_id)
-    cnx.close()
-    return data
+#     cnx=connection_sql()
+#     cnx = cnxpool.get_connection()
+#     cnx.close()
+    try:
+        cnx.cmd_refresh(1)
+        data= GetPreProcessConfigData.get_data(cnx, data.camera_group_id)
+        return data
+    except:
+        cnx.reconnect()
+        cnx.cmd_refresh(1)
+        data= GetPreProcessConfigData.get_data(cnx, data.camera_group_id)
+        return data
 
 
 @app.get("/getModelMasterbyId")
@@ -166,130 +245,343 @@ async def model_master_by_id_fetch(data:ModelMaster):
         Returns:
                 FastAPI JSONResponse of Model Master data.
         """
-        cnx=connection_sql()
-        return GetModelMasterById.get_data(cnx,data.model_id)
+        # cnx=connection_sql()
+        # cnx = cnxpool.get_connection()
+        try:
+                cnx.cmd_refresh(1)
+                return GetModelMasterById.get_data(cnx,data.model_id)
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                return GetModelMasterById.get_data(cnx,data.model_id)
 
 
 @app.post("/updateEndpoint")
 async def endpoint_update(data:ModelMasterEndpoint):
-        cnx=connection_sql()
+        # cnx=connection_sql()
+        # cnx = cnxpool.get_connection()
 
         print("update===>",data)
         print("*******",data.model_end_point)
         print("*******",data.model_id)
-        data= UpdateEndPoint.update(cnx,data.model_end_point,data.model_id)
-        cnx.close()
-        return data
+        
+        # cnx.close()
+        try:
+                cnx.cmd_refresh(1)
+                data= UpdateEndPoint.update(cnx,data.model_end_point,data.model_id)
+                return data
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                data= UpdateEndPoint.update(cnx,data.model_end_point,data.model_id)
+                return data
 
 
 @app.get("/getpostprocess")
 async def post_process_config_fetch(data:PostProcessConf):
-        cnx=connection_sql()
+        # cnx=connection_sql()
+        # cnx = cnxpool.get_connection()
 
         print("update===>",data)
         #print("*******",data.camera_group_id)
         
-        data= GetPostProcessConfigData.get_data(cnx,data.usecase_id)
-        cnx.close()
-        return data
+        # cnx.close()
+        try:
+                cnx.cmd_refresh(1)
+                data= GetPostProcessConfigData.get_data(cnx,data.usecase_id)
+                return data
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                data= GetPostProcessConfigData.get_data(cnx,data.usecase_id)
+                return data 
 
 
 @app.get("/getclasses")
 async def post_process_class_fetch(data:PostProcessClass):
-        cnx=connection_sql()
+        # cnx=connection_sql()
+        # cnx = cnxpool.get_connection()
 
         print("update===>",data)
         print("*******",data.usecase_id)
         
-        data= GetClassesData.get_data(cnx,data.usecase_id)
-        cnx.close()
-        return data
+        # cnx.close()
+        try:
+                cnx.cmd_refresh(1)
+                data= GetClassesData.get_data(cnx,data.usecase_id)
+                return data
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                data= GetClassesData.get_data(cnx,data.usecase_id)
+                return data
 
 
 @app.get("/getincidents")
 async def post_process_incidents_fetch(data:PostProcessIncident):
-        cnx=connection_sql()
+        # cnx=connection_sql()
+        # cnx = cnxpool.get_connection()
 
         print("update===>",data)
         print("*******",data.usecase_id)
         
-        data= GetIncidentData.get_data(cnx,data.usecase_id)
-        cnx.close()
-        return data
+        # cnx.close()
+        try:
+                cnx.cmd_refresh(1)
+                data= GetIncidentData.get_data(cnx,data.usecase_id)
+                return data
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                data= GetIncidentData.get_data(cnx,data.usecase_id)
+                return data
+        
 
 
 @app.get("/getcomputation")
 async def post_process_computation_fetch(data:PostProcessComputation):
-        cnx=connection_sql()
+        # cnx=connection_sql()
+        # cnx = cnxpool.get_connection()
 
         print("update===>",data)
         print("*******",data.usecase_id)
         
-        data= GetComputationData.get_data(cnx,data.usecase_id)
-        cnx.close()
-        return data
+        # cnx.close()
+        try:
+                cnx.cmd_refresh(1)
+                data= GetComputationData.get_data(cnx,data.usecase_id)
+                return data
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                data= GetComputationData.get_data(cnx,data.usecase_id)
+                return data
 
 
 @app.get("/getboundary")
 async def post_process_boundary_fetch(data:PostProcessBoundary):
-        cnx=connection_sql()
+        # cnx=connection_sql()
+        # cnx = cnxpool.get_connection()
 
         print("update===>",data)
         print("*******",data.usecase_id)
         
-        data= GetBoundaryData.get_data(cnx,data.usecase_id)
-        cnx.close()
-        return data
+        # cnx.close()
+        try:
+                cnx.cmd_refresh(1)
+                data= GetBoundaryData.get_data(cnx,data.usecase_id)
+                return data
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                data= GetBoundaryData.get_data(cnx,data.usecase_id)
+                return data
 
 @app.get("/gettopics")
 async def kafka_topics_fetch(data:KafkaTopics):
-        cnx=connection_sql()
+        # cnx=connection_sql()
+        # cnx = cnxpool.get_connection()
 
         print("update===>",data)
         print("*******",data.camera_group_id)
         
-        data= GetKafkaData.get_data(cnx,data.camera_group_id)
-        cnx.close()
-        return data
+        # cnx.close()
+        try:
+                cnx.cmd_refresh(1)
+                data= GetKafkaData.get_data(cnx,data.camera_group_id)
+                return data
+        except:
+                cnx.reconnect()
+                data= GetKafkaData.get_data(cnx,data.camera_group_id)
+                cnx.cmd_refresh(1)
+                return data
 
-@app.get("/modelvalidate")
+@app.post("/modelvalidate")
 async def model_validate_fetch(data: ModelValidation):
-    
-    data = ValidationModel.get_data(validateconfig,
-        data.model_id, data.framework
-    )
-    
-    return data
+                try:
+                        cnx.cmd_refresh(1)
+                        data = ValidationModel.get_data(validateconfig,
+                                        data.model_id, data.framework_id)
+                        print("=========",data)
+                        return data
+                except:
+                        cnx.reconnect()
+                        cnx.cmd_refresh(1)
+                        data = ValidationModel.get_data(validateconfig,
+                                        data.model_id, data.framework_id)
+                        return data
+                
 
 @app.get("/ports")
 async def model_ports_fetch(data: ModelPorts):
-    cnx=connection_sql()
+#     cnx=connection_sql()
+#     cnx = cnxpool.get_connection()
     print("data ",data.model_id)
-    data = GetPortDetails.get_data(cnx,data.model_id)
-    cnx.close()
-    return data
+    try:
+        cnx.cmd_refresh(1)
+        data = GetPortDetails.get_data(cnx,data.model_id)
+        return data
+    except:
+        cnx.reconnect()
+        cnx.cmd_refresh(1)
+        data = GetPortDetails.get_data(cnx,data.model_id)
+        return data
+    
+#     cnx.close()
+        
+    
 @app.post("/updateports")
 async def model_ports_update(data: ModelPorts):
-        cnx=connection_sql()
-        data = UpdateModelPort.update(cnx,data.model_port,data.model_id)
-        cnx.close()
-        return data
+        # cnx=connection_sql()
+        # cnx = cnxpool.get_connection()
+        print("in update port ",data.model_port,data.model_id)
+        try:
+                cnx.cmd_refresh(1)
+                data = UpdateModelPort.update(cnx,data.model_port,data.model_id)
+                # cnx.close()
+                return data
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                data = UpdateModelPort.update(cnx,data.model_port,data.model_id)
+                # cnx.close()
+                return data
         
-@app.get("/preview")  # getCameraFrame
-async def CameraFrame_fetch(data: CameraDetails):
+
+@app.get("/summarytime")
+async def summary_time_fetch():
 #     cnx=connection_sql()
-    return GetCameraFrames.get_desired_frames(
-        data.rtsp_url, data.username, data.password
-    )
+    try:
+        cnx.cmd_refresh(1)
+        data = GetSummaryTimeDetails.get_data(cnx)
+        #     cnx.close()
+        return data
+    except:
+        cnx.reconnect()
+        data = GetSummaryTimeDetails.get_data(cnx)
+        #     cnx.close()
+        return data
+@app.post("/updatesummarytime")
+async def summary_time_update(data: SummaryTime):
+        # cnx=connection_sql()
+        # cnx = cnxpool.get_connection()
+        try:
+                cnx.cmd_refresh(1)
+                print("in update summary time ",data.start_time,data.end_time)
+                data = UpdateIncidentSummaryTime.update(cnx, data.start_time, data.end_time)
+                # cnx.close()
+                return data
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                print("in update summary time ",data.start_time,data.end_time)
+                data = UpdateIncidentSummaryTime.update(cnx, data.start_time, data.end_time)
+                # cnx.close()
+                return data
+        
+@app.post("/preview")  # getCameraFrame
+async def CameraFrame_fetch(data: CameraDetails):
+        print("============camera data =================")
+        print(data)
+        try:
+                cnx.cmd_refresh(1)
+                return GetCameraFrames.get_desired_frames(
+                        data.rtsp_url, data.username, data.password
+                )
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                return GetCameraFrames.get_desired_frames(
+                        data.rtsp_url, data.username, data.password
+                )
 
 @app.get("/getincidentvideoconf") 
 async def Incident_details_fetch(data: IncidentVideo):
         print("*"*10)
         print(data)
         print(data.incident_video_id)
-        cnx=connection_sql()
-        data = GetIncidentVideoData.get_data(cnx,
-                data.incident_video_id
-        )
-        cnx.close()
-        return data
+        # cnx=connection_sql()
+        # cnx = cnxpool.get_connection()
+        try:
+                cnx.cmd_refresh(1)
+                data = GetIncidentVideoData.get_data(cnx,
+                        data.incident_video_id
+                )
+                # cnx.close()
+                return data
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                data = GetIncidentVideoData.get_data(cnx,
+                        data.incident_video_id
+                )
+                # cnx.close()
+                return data
+
+@app.get("/geteventnotification") 
+async def event_notification_details(data: notification_config):
+        # cnx=connection_sql()
+        try:
+                cnx.cmd_refresh(1)
+                data = GetNotificationDetails.get_eventbased_notification_data(cnx,
+                        data.camera_id,data.usecase_id)
+                # cnx.close()
+                return data
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                data = GetNotificationDetails.get_eventbased_notification_data(cnx,
+                        data.camera_id,data.usecase_id)
+                # cnx.close()
+                return data
+
+@app.get("/gethournotification") 
+async def event_notification_details(data: notification_config):
+        # cnx=connection_sql()
+        try:
+                cnx.cmd_refresh(1)
+                data = GetNotificationDetails.get_hourly_notification_data(cnx,
+                        data.camera_id,data.usecase_id)
+                # cnx.close()
+                return data
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                data = GetNotificationDetails.get_hourly_notification_data(cnx,
+                        data.camera_id,data.usecase_id)
+                # cnx.close()
+                return data
+
+@app.get("/getendofshiftnotification") 
+async def event_notification_details(data: notification_config):
+        # cnx=connection_sql()
+        try:
+                cnx.cmd_refresh(1)
+                data = GetNotificationDetails.get_endshiftbased_data(cnx,
+                        data.camera_id,data.usecase_id)
+                # cnx.close()
+                return data
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                data = GetNotificationDetails.get_endshiftbased_data(cnx,
+                        data.camera_id,data.usecase_id)
+                # cnx.close()
+                return data
+
+@app.get("/getnotificationdetails") 
+async def event_notification_details(data: camera_config):
+        # cnx=connection_sql()
+        try:
+                cnx.cmd_refresh(1)
+                data = GetNotificationDetails.get_notification_data_bycameraid(cnx,
+                        data.camera_id)
+                # cnx.close()
+                return data
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                data = GetNotificationDetails.get_notification_data_bycameraid(cnx,
+                        data.camera_id)
+                # cnx.close()
+                return data
