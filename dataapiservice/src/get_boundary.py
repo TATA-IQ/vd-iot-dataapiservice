@@ -8,11 +8,12 @@ class GetBoundaryData():
             # print("++++",test_id)
         
         query=f"""
-            SELECT b.boundary_id, b.boundary_group_id, b.color, bc.boundary_coordinates_id, bc.x_coordinate,
-            bc.y_coordinate, bg.processing_stage, bg.status, bg.camera_id, bg.incident_id, bg.usecase_id
+           SELECT distinct b.boundary_id, b.boundary_group_id, b.color, bc.boundary_coordinates_id, bc.x_coordinate,
+            bc.y_coordinate, bg.processing_stage, bg.status, bg.camera_id, bg.incident_id, bg.usecase_id,
+            bg.image_height, bg.image_width
             FROM `tcl-dev`.post_process_boundary ppb
-            inner join boundary b on ppb.boundary_id=b.boundary_id
-            inner join boundary_group bg on bg.boundary_group_id=b.boundary_group_id
+            inner join boundary_group bg on bg.boundary_group_id=ppb.boundary_id
+            inner join boundary b on b.boundary_group_id=bg.boundary_group_id
             inner join boundary_coordinates bc on bc.boundary_id=b.boundary_id 
             where bg.usecase_id in {usecase_id}"""
         print(query)
@@ -36,6 +37,8 @@ class GetBoundaryData():
                 dictdata["camera_id"]=i[column_names.index('camera_id')]
                 dictdata["incident_id"]=i[column_names.index('incident_id')] 
                 dictdata["usecase_id"]=i[column_names.index('usecase_id')] 
+                dictdata["image_height"]=i[column_names.index('image_height')] 
+                dictdata["image_width"]=i[column_names.index('image_width')] 
                 listresult.append(dictdata)
         return {"data":listresult}        
         
