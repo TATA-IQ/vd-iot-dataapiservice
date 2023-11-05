@@ -11,7 +11,7 @@ from model.schedule_model import ScheduleMaster
 from model.usecase_model import UseCaseModel
 from model.model_validate_model import ModelValidation
 from model.post_process_model import PostProcessConf, PostProcessClass, PostProcessIncident, PostProcessComputation, PostProcessBoundary
-from model.incidentvideo_model import IncidentVideo
+from model.incidentvideo_model import IncidentVideo, UpdateIncidentVideo
 from model.notification_model import notification_config,camera_config
 from src.get_cameragroup import GetModelCamGroup
 from src.get_cameraconfig import GetCameraConfigData
@@ -27,7 +27,7 @@ from src.get_incidents import GetIncidentData
 from src.get_postprocess import GetPostProcessConfigData
 from src.get_usecase import GetUsecase
 from src.get_kafkatopics import GetKafkaData
-from src.get_incident_video_config import GetIncidentVideoData
+from src.get_incident_video_config import GetIncidentVideoData, UpdateIncidentVideoStatus
 from src.get_model_validation import ValidationModel
 from model.kafka_model import KafkaTopics
 from model.model_port_model import ModelPorts
@@ -514,6 +514,33 @@ async def Incident_details_fetch(data: IncidentVideo):
                 cnx.cmd_refresh(1)
                 data = GetIncidentVideoData.get_data(cnx,
                         data.incident_video_id
+                )
+                # cnx.close()
+                return data
+        
+@app.post("/updateincidentvideoconf") 
+async def Incident_details_fetch(data: UpdateIncidentVideo):
+        print("*"*10)
+        print(data)
+        print(data.incident_video_id)
+        # cnx=connection_sql()
+        # cnx = cnxpool.get_connection()
+        try:
+                cnx.cmd_refresh(1)
+                data = UpdateIncidentVideoStatus.update(cnx,
+                        data.incident_video_id,
+                        data.status,
+                        data.message
+                )
+                # cnx.close()
+                return data
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                data = UpdateIncidentVideoStatus.update(cnx,
+                        data.incident_video_id,
+                        data.status,
+                        data.message
                 )
                 # cnx.close()
                 return data

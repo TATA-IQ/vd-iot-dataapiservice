@@ -1,11 +1,11 @@
 class GetIncidentVideoData():
     def get_data(connection,incident_video_id):
         query=f"""SELECT iv.id as incident_video_id, iv.status,iv.file_name, iv.incident_id,iv.camera_id,iv.usecase_id,iv.start_timestamp,iv.end_timestamp,cm.zone_id,cm.timezone,sm.subsite_id,lm.location_id,lm.customer_id,lm.city_id,iv.is_deleted,cm.camera_status,cm.fps,cm.image_height,cm.image_width,cm.rtsp_url
-                    FROM `tcl-dev`.incident_video iv
-                    INNER JOIN `tcl-dev`.camera_master cm ON iv.camera_id = cm.camera_id
-                    INNER JOIN `tcl-dev`.zone_master zm ON cm.zone_id = zm.zone_id
-                    INNER JOIN `tcl-dev`.subsite_master sm ON zm.subsite_id = sm.subsite_id
-                    INNER JOIN `tcl-dev`.location_master lm ON sm.location_id = lm.location_id
+                    FROM incident_video iv
+                    INNER JOIN camera_master cm ON iv.camera_id = cm.camera_id
+                    INNER JOIN zone_master zm ON cm.zone_id = zm.zone_id
+                    INNER JOIN subsite_master sm ON zm.subsite_id = sm.subsite_id
+                    INNER JOIN location_master lm ON sm.location_id = lm.location_id
                     where iv.id={incident_video_id} 
         """
         listresult=[]
@@ -42,7 +42,30 @@ class GetIncidentVideoData():
                 listresult.append(dictdata)
                 print(dictdata)
                 
-        return {"data":listresult}      
+        return {"data":listresult} 
+    
+
+
+class UpdateIncidentVideoStatus():
+    def update(cnx,incident_video_id,status,message):
+        query="""update incident_video set status=%s, message=%s where id=%s"""
+        try:
+            with cnx.cursor() as cur:
+                print("Inserting")
+                print(query)
+                cur.execute(query,(status,message,incident_video_id))
+                cnx.commit()
+                # cnx.close()
+                print(f"status: {status} and {message} for incident_video_id: {incident_video_id}")
+            return {"data":"Updated status for incident_video"}
+        except Exception as ex:
+            print("======",ex)
+            return {"data":ex}
+        # finally:
+        #     cnx.close()     
+            
+            
+            
 
 
 
