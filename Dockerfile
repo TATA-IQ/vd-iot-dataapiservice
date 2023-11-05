@@ -1,21 +1,15 @@
-# syntax=docker/dockerfile:1
-
-FROM python:3.9-slim-buster
-
-ENV POETRY_VERSION=1.4 \
-    POETRY_VIRTUALENVS_CREATE=false
-
-# Install poetry
-RUN pip install "poetry==$POETRY_VERSION"
-
-# Copy only requirements to cache them in docker layer
-WORKDIR /code
-COPY poetry.lock pyproject.toml /code/
-
-# Project initialization:
-RUN poetry install --no-interaction --no-ansi --no-root --no-dev
-
-# Copy Python code to the Docker image
-COPY dataapiservice /code/dataapiservice/
-
-CMD [ "python", "dataapiservice/foo.py"]
+FROM python:3.9
+RUN apt-get update
+RUN apt-get install ffmpeg libsm6 libxext6  -y
+RUN pip install mysql-connector-python
+RUN pip install pandas
+RUN pip install opencv-python
+RUN pip install requests
+RUN pip install imutils
+RUN pip install fastapi==0.99.1
+RUN pip install "uvicorn[standard]"
+RUN pip install protobuf==3.20.*
+copy dataapiservice /app
+WORKDIR /app
+# RUN mkdir /app/logs
+CMD ["uvicorn", "fastapp:app", "--host", "0.0.0.0", "--port", "8051", "--workers", "5"]
