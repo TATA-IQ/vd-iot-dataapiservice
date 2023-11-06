@@ -20,7 +20,7 @@ class GetScheduleMaster():
 
         query=""
         if camera_group_id:
-            query=f"""select sm.id as schedule_id, sm.is_deleted ,sm.name as schedule_name, sm.start_date,sm.end_date,sm.status, sm.timezone,sm.timezone_offset,sm.camera_group_id,
+            query=f"""select sm.id as schedule_id, sm.timezone_offset, sm.is_deleted ,sm.name as schedule_name, sm.start_date,sm.end_date,sm.status, sm.timezone,sm.timezone_offset,sm.camera_group_id,
                     sm.daily_schedule_id, sm.frequency_type_id,sm.input_type_id,sm.monthly_schedule_id,
                     sm.online_id, sm.preprocess_id, sm.postprocess_id, sm.upload_id, sm.usecase_id, sm.weekly_schedule_id,
                     ft.name as frequency_name from schedule_master sm 
@@ -47,6 +47,7 @@ class GetScheduleMaster():
                     dictdata["preprocess_id"]=i[column_names.index('preprocess_id')]
                     dictdata["postprocess_id"]=i[column_names.index('postprocess_id')]
                     dictdata["usecase_id"]=i[column_names.index('usecase_id')]
+                    dictdata["timezone_offset"]=i[column_names.index('timezone_offset')]
                     dictdata["frequency_name"]=i[column_names.index('frequency_name')]
                     dictdata["startdate"]=str(i[column_names.index('start_date')])
                     dictdata["enddate"]=str(i[column_names.index('end_date')])
