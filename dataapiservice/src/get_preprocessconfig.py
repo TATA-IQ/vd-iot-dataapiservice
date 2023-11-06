@@ -59,7 +59,7 @@ class GetPreProcessConfigData():
                     dictdata["brightness"]=i[column_names.index('brightness')]
                     dictdata["contrast_alpha"]=i[column_names.index('contrast_alpha')]
                     dictdata["contrast_beta"]=i[column_names.index('contrast_beta')]
-
+                    dictdata["timezone_offset"]=i[column_names.index('timezone_offset')]
                     dictdata["contrast_sigma_one"]=i[column_names.index('contrast_sigma_one')]
                     dictdata["contrast_sigma_two"]=i[column_names.index('contrast_sigma_two')]
 
