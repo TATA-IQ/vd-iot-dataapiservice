@@ -21,7 +21,7 @@ This is a data api service repo.
 uvicorn fastapp:app --host=0.0.0.0 --port=8051 --workers=5
 
 # Docker 
-1. Contenirization is enabled
+1. Containarization is enabled
 2. change the config.yaml
 2. Navigate to the Dockerfile level
 2. build the container (sudo docker build -t "dataapi" .)
