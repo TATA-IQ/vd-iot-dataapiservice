@@ -1,48 +1,28 @@
-# DataApiService
-
-[![Release](https://img.shields.io/github/v/release/./DataApiService)](https://img.shields.io/github/v/release/./DataApiService)
-[![Build status](https://img.shields.io/github/actions/workflow/status/./DataApiService/main.yml?branch=main)](https://github.com/./DataApiService/actions/workflows/main.yml?query=branch%3Amain)
-[![codecov](https://codecov.io/gh/./DataApiService/branch/main/graph/badge.svg)](https://codecov.io/gh/./DataApiService)
-[![Commit activity](https://img.shields.io/github/commit-activity/m/./DataApiService)](https://img.shields.io/github/commit-activity/m/./DataApiService)
-[![License](https://img.shields.io/github/license/./DataApiService)](https://img.shields.io/github/license/./DataApiService)
-
-This service host the api configurations for pipeline
-
-- **Github repository**: <https://github.com/./DataApiService/>
-- **Documentation** <https://..github.io/DataApiService/>
-
-## Getting started with your project
-
-First, create a repository on GitHub with the same name as this project, and then run the following commands:
-
-``` bash
-git init -b main
-git add .
-git commit -m "init commit"
-git remote add origin git@github.com:./DataApiService.git
-git push -u origin main
-```
-
-Finally, install the environment and the pre-commit hooks with 
-
-```bash
-make install
-```
-
-You are now ready to start development on your project! The CI/CD
-pipeline will be triggered when you open a pull request, merge to main,
-or when you create a new release.
-
-To finalize the set-up for publishing to PyPi or Artifactory, see
-[here](https://fpgmaas.github.io/cookiecutter-poetry/features/publishing/#set-up-for-pypi).
-For activating the automatic documentation with MkDocs, see
-[here](https://fpgmaas.github.io/cookiecutter-poetry/features/mkdocs/#enabling-the-documentation-on-github).
-To enable the code coverage reports, see [here](https://fpgmaas.github.io/cookiecutter-poetry/features/codecov/).
-
-## Releasing a new version
+# Introduction 
+This is a data api service repo. 
 
 
 
----
+# Architecture
+![Architectural Flow](abc.png)
 
-Repository initiated with [fpgmaas/cookiecutter-poetry](https://github.com/fpgmaas/cookiecutter-poetry).
+1. This module is hosted using uvicorn with multiple workers
+2. FastAPI receives HTTP requests and each worker process the request
+3. This module uses multiple workers to processes to manage incoming multiple requests
+4. After processing, an output is sentout as response json
+# Dependency
+1. MySQL Database: Stores configuration and processing data for various levels such as camera configurations, preprocessing, postprocessing, and scheduling managements.
+
+# Installation
+1. Install Python3.9 
+3. poetry install
+
+# Run App
+uvicorn fastapp:app --host=0.0.0.0 --port=8051 --workers=5
+
+# Docker 
+1. Contenirization is enabled
+2. change the config.yaml
+2. Navigate to the Dockerfile level
+2. build the container (sudo docker build -t "dataapi" .)
+3. Run the container (sudo docker run -t "dataapi")
