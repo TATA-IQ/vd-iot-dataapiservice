@@ -8,7 +8,7 @@ This is a data api service repo.
 
 1. This module is hosted using uvicorn with multiple workers
 2. FastAPI receives HTTP requests and each worker process the request
-3. This module uses multiple workers to process for managing incoming multiple requests
+3. This module uses multiple workers to process and manage incoming multiple requests
 4. After processing, an output is sentout as response json
 # Dependency
 1. MySQL Database: Stores configuration and processing data for various levels such as camera configurations, preprocessing, postprocessing, and scheduling managements.
