@@ -12,4 +12,4 @@ RUN pip install protobuf==3.20.*
 copy dataapiservice /app
 WORKDIR /app
 # RUN mkdir /app/logs
-CMD ["uvicorn", "fastapp:app", "--host", "0.0.0.0", "--port", "8051", "--workers", "5"]
+CMD ["uvicorn", "fastapp:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "5"]
