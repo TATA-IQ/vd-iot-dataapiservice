@@ -19,7 +19,7 @@ class GetPostProcessConfigData():
             usecase_id=str(usecase_id).replace(',','')
         print("+++++",usecase_id)
                 
-        query=f"""select pp.id,pp.image_size_height, pp.image_size_width, pp.legend, pp.name, pp.usecase_id,
+        query=f"""select pp.id,pp.image_size_height, pp.orientation ,pp.image_size_width, pp.legend, pp.name, pp.usecase_id,
                 uc.usecase_id, uc.usecase_name, uc.usecase_description, uc.usecase_template_id,
                 us.id, uts.step_name, uts.step_type, uts.step_no,us.computation_id, us.model_id model_id
                 from post_process pp               
@@ -50,6 +50,7 @@ class GetPostProcessConfigData():
                 dictdata["usecase_template_id"]=i[column_names.index('usecase_template_id')]
                 dictdata["usecase_step_id"]=i[column_names.index('id')] 
                 dictdata["step_name"]=i[column_names.index('step_name')] 
+                dictdata["orientation"]=i[column_names.index('orientation')] 
                 dictdata["step_no"]=i[column_names.index('step_no')] 
                 dictdata["step_type"]=i[column_names.index('step_type')]
                 dictdata["computation_id"]=i[column_names.index('computation_id')]
