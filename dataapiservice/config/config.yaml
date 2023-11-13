@@ -1,8 +1,8 @@
 db:
-  host: "172.16.0.214"
-  username: "vishal"
-  db: "tcl-uat"
-  password: "Welcome#123"
+  host: "172.31.26.109"
+  username: "praween"
+  db: "appdb"
+  password: "praween_2023"
 
 validation_api:
   1: "http://172.16.0.204:8002/detection/yolov5/validate"
