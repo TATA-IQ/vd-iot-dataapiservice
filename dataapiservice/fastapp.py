@@ -57,11 +57,11 @@ def connection_sql():
 
 cnx=connection_sql()
 
-cnxpool = mysql.connector.pooling.MySQLConnectionPool(pool_name="mysqlpool", pool_size=5,
-                                                      user=dbconfig["username"],
-                                                      password=dbconfig["password"],
-                                                      host=dbconfig["host"],
-                                                      database=dbconfig["db"])
+# cnxpool = mysql.connector.pooling.MySQLConnectionPool(pool_name="mysqlpool", pool_size=5,
+#                                                       user=dbconfig["username"],
+#                                                       password=dbconfig["password"],
+#                                                       host=dbconfig["host"],
+#                                                       database=dbconfig["db"])
 
 
 app = FastAPI()
