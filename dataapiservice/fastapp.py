@@ -47,13 +47,25 @@ validateconfig=config["validation_api"]
 print(dbconfig)
 
 def connection_sql():
-        cnx = mysql.connector.connect(
-        user=dbconfig["username"],
-        password=dbconfig["password"],
-        host=dbconfig["host"],
-        database=dbconfig["db"],
-        )
-        return cnx
+        try:
+                cnx = mysql.connector.connect(
+                user=dbconfig["username"],
+                password=dbconfig["password"],
+                host=dbconfig["host"],
+                database=dbconfig["db"],
+                port=dbconfig["port"]
+                )
+                return cnx
+        except Exception as exp:
+                print("expection raised", exp)
+                cnx = mysql.connector.connect(
+                user=dbconfig["username"],
+                password=dbconfig["password"],
+                host=dbconfig["host"],
+                database=dbconfig["db"],
+                )
+                return cnx
+                
 
 cnx=connection_sql()
 
