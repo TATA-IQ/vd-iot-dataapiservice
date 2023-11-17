@@ -12,3 +12,18 @@ class UpdateEndPoint():
         except Exception as ex:
             print("======",ex)
             return {"data":ex}
+        
+class UpdateModelStatus():
+    def update(cnx,model_id, status, message):
+        print("========in update model status=============")
+        query="""update model set status=%s, status_message=%s where model_id=%s"""
+        try:
+            with cnx.cursor() as cur:
+                print("Inserting")
+                print(query, status, message, model_id)
+                cur.execute(query, (status, message, model_id))
+                cnx.commit()
+            return {"data":"Updated running status for model"}
+        except Exception as ex:
+            print("======",ex)
+            return {"data":ex}

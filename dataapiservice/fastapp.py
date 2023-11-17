@@ -19,7 +19,7 @@ from src.get_preprocessconfig import GetPreProcessConfigData
 from src.get_schedulingconfig import GetScheduleMaster
 from src.get_cameraextract import GetCameraFrames
 from src.get_modelmaster import GetModelMasterById
-from src.post_updatemodelurl import UpdateEndPoint
+from src.post_updatemodelurl import UpdateEndPoint, UpdateModelStatus
 from src.get_boundary import GetBoundaryData
 from src.get_classes import GetClassesData
 from src.get_computation import GetComputationData
@@ -30,7 +30,7 @@ from src.get_kafkatopics import GetKafkaData
 from src.get_incident_video_config import GetIncidentVideoData, UpdateIncidentVideoStatus
 from src.get_model_validation import ValidationModel
 from model.kafka_model import KafkaTopics
-from model.model_port_model import ModelPorts
+from model.model_port_model import ModelPorts, ModelStatus
 from src.get_port_details import GetPortDetails
 from src.post_updateportmodel import UpdateModelPort
 from src.get_incident_summary_details import GetSummaryTimeDetails
@@ -456,6 +456,24 @@ async def model_ports_update(data: ModelPorts):
                 cnx.reconnect()
                 cnx.cmd_refresh(1)
                 data = UpdateModelPort.update(cnx,data.model_port,data.model_id)
+                # cnx.close()
+                return data
+        
+@app.post("/updatemodelstatus")
+async def model_status_update(data: ModelStatus):
+        
+        # cnx=connection_sql()
+        # cnx = cnxpool.get_connection()
+        print("in update model status ",data.model_id, data.status, data.message)
+        try:
+                cnx.cmd_refresh(1)
+                data = UpdateModelStatus.update(cnx,data.model_id, data.status,data.message)
+                # cnx.close()
+                return data
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                data = UpdateModelStatus.update(cnx,data.model_id, data.status,data.message)
                 # cnx.close()
                 return data
         
