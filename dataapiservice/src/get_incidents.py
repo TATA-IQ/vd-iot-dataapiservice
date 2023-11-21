@@ -5,7 +5,7 @@ class GetIncidentData():
 im.incident_name, im.measurement_unit, im.incident_type_id, im.usecase_template_id,
 icl.class_id, cm.class_name, uil.usecase_id, it.incident_type_id, it.incident_type_name, com.computation_name, com.tolerance,
 com.upper_limit, com.lower_limit
-                FROM `appdb`.incident_master im
+                FROM incident_master im
                 left join incident_class_link icl on icl.incident_id=im.incident_id
                 left join class_master cm on icl.class_id=cm.class_id
                 left join usecase_incident_link uil on uil.incident_id=im.incident_id
