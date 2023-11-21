@@ -11,7 +11,7 @@ class GetBoundaryData():
            SELECT distinct b.boundary_id, b.boundary_group_id, b.color, bc.boundary_coordinates_id, bc.x_coordinate,
             bc.y_coordinate, bg.processing_stage, bg.status, bg.camera_id, bg.incident_id, bg.usecase_id,
             bg.image_height, bg.image_width
-            FROM `appdb`.post_process_boundary ppb
+            FROM post_process_boundary ppb
             inner join boundary_group bg on bg.boundary_group_id=ppb.boundary_id
             inner join boundary b on b.boundary_group_id=bg.boundary_group_id
             inner join boundary_coordinates bc on bc.boundary_id=b.boundary_id 
