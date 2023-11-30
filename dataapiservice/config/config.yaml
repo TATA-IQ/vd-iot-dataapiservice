@@ -1,12 +1,11 @@
 db:
-  host: "172.31.26.109"
-  username: "application"
-  db: "appdb"
-  password: "applicationP@33word"
+  host: "172.16.0.214"
+  username: "vishal"
+  db: "tcl-dev"
+  password: "Welcome#123"
 
 validation_api:
-  1: "http://10.0.153.141:8002/detection/yolov5/validate"
-  4: "http://10.0.153.141:8003/detection/tensorflow/validate"
-  2: "http://10.0.153.141:8001/detection/yolov8/validate"
-  3: "http://10.0.153.141:8004/detection/paddleocr/validate"
-
+  1: "http://172.16.0.204:8002/detection/yolov5/validate"
+  4: "http://172.16.0.204:8003/detection/tensorflow/validate"
+  2: "http://172.16.0.204:8001/detection/yolov8/validate"
+  3: "http://172.16.0.204:8004/detection/paddleocr/validate"
