@@ -40,10 +40,18 @@ from model.incident_summary_time import SummaryTime
 
 
 import mysql.connector
+import socket
+import consul
+# from src.parser import Config
+import socket
 
 config = Config.yamlconfig("config/config.yaml")[0]
 dbconfig=config["db"]
 validateconfig=config["validation_api"]
+local_ip=socket.gethostbyname(socket.gethostname())
+consul_conf=config["consul"]
+service_conf=config["register_service"]
+
 print(dbconfig)
 
 def connection_sql():
@@ -75,7 +83,17 @@ cnx=connection_sql()
 #                                                       host=dbconfig["host"],
 #                                                       database=dbconfig["db"])
 
+def register_service(consul_conf):
+    consul_client = consul.Consul(host=consul_conf["host"],port=consul_conf["port"])
+    name=socket.gethostname()
+    consul_client.agent.service.register(
+    "dbapi",service_id=name,
+    port=service_conf["port"],
+    address=local_ip,
+    tags=["python","dbapi"]
+)
 
+register_service(consul_conf)
 app = FastAPI()
 
 
@@ -408,20 +426,20 @@ async def kafka_topics_fetch(data:KafkaTopics):
                 cnx.cmd_refresh(1)
                 return data
 
-@app.post("/modelvalidate")
-async def model_validate_fetch(data: ModelValidation):
-                try:
-                        cnx.cmd_refresh(1)
-                        data = ValidationModel.get_data(validateconfig,
-                                        data.model_id, data.framework_id)
-                        print("=========",data)
-                        return data
-                except:
-                        cnx.reconnect()
-                        cnx.cmd_refresh(1)
-                        data = ValidationModel.get_data(validateconfig,
-                                        data.model_id, data.framework_id)
-                        return data
+# @app.post("/modelvalidate")
+# async def model_validate_fetch(data: ModelValidation):
+#                 try:
+#                         cnx.cmd_refresh(1)
+#                         data = ValidationModel.get_data(validateconfig,
+#                                         data.model_id, data.framework_id)
+#                         print("=========",data)
+#                         return data
+#                 except:
+#                         cnx.reconnect()
+#                         cnx.cmd_refresh(1)
+#                         data = ValidationModel.get_data(validateconfig,
+#                                         data.model_id, data.framework_id)
+#                         return data
                 
 
 @app.get("/ports")
