@@ -26,6 +26,14 @@ class GetScheduleMaster():
                     ft.name as frequency_name from schedule_master sm 
                     inner join frequency_type ft on sm.frequency_type_id=ft.id
                     where  sm.camera_group_id in {camera_group_id} and sm.status=1 """
+        else:
+            query=f"""select sm.id as schedule_id, sm.timezone_offset, sm.is_deleted ,sm.name as schedule_name, sm.start_date,sm.end_date,sm.status, sm.timezone,sm.timezone_offset,sm.camera_group_id,
+                    sm.daily_schedule_id, sm.frequency_type_id,sm.input_type_id,sm.monthly_schedule_id,
+                    sm.online_id, sm.preprocess_id, sm.postprocess_id, sm.upload_id, sm.usecase_id, sm.weekly_schedule_id,
+                    ft.name as frequency_name from schedule_master sm 
+                    inner join frequency_type ft on sm.frequency_type_id=ft.id
+                    where   sm.status=1 """
+
 
         print(query)
         listresult=[]

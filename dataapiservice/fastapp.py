@@ -17,6 +17,8 @@ from src.get_cameragroup import GetModelCamGroup
 from src.get_cameraconfig import GetCameraConfigData
 from src.get_preprocessconfig import GetPreProcessConfigData
 from src.get_schedulingconfig import GetScheduleMaster
+from src.get_online import GetOnline
+from src.get_upload import GetUpload
 from src.get_cameraextract import GetCameraFrames
 from src.get_modelmaster import GetModelMasterById
 from src.post_updatemodelurl import UpdateEndPoint, UpdateModelStatus
@@ -47,7 +49,7 @@ import socket
 
 config = Config.yamlconfig("config/config.yaml")[0]
 dbconfig=config["db"]
-validateconfig=config["validation_api"]
+# validateconfig=config["validation_api"]
 local_ip=socket.gethostbyname(socket.gethostname())
 consul_conf=config["consul"]
 service_conf=config["register_service"]
@@ -87,10 +89,10 @@ def register_service(consul_conf):
     consul_client = consul.Consul(host=consul_conf["host"],port=consul_conf["port"])
     name=socket.gethostname()
     consul_client.agent.service.register(
-    "dbapi",service_id=name,
+    "dbapi",service_id=name+"-dbapi-"+consul_conf["env"],
     port=service_conf["port"],
     address=local_ip,
-    tags=["python","dbapi"]
+    tags=["python","dbapi",consul_conf["env"]]
 )
 
 register_service(consul_conf)
@@ -387,6 +389,39 @@ async def post_process_computation_fetch(data:PostProcessComputation):
                 data= GetComputationData.get_data(cnx,data.usecase_id)
                 return data
 
+@app.get("/getonline")
+async def online_fetch():
+        
+        print("===hitting online===")
+        try:
+                cnx.cmd_refresh(1)
+                data= GetOnline.get_data(cnx)
+                return data
+        except Exception as ex:
+                print(ex)
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                data= GetOnline.get_data(cnx)
+                return data
+
+@app.get("/getupload")
+async def upload_fetch():
+        # cnx=connection_sql()
+        # cnx = cnxpool.get_connection()
+
+        # print("update===>",data)
+        # print("*******",data.usecase_id)
+        
+        # cnx.close()
+        try:
+                cnx.cmd_refresh(1)
+                data= GetUpload.get_data(cnx)
+                return data
+        except:
+                cnx.reconnect()
+                cnx.cmd_refresh(1)
+                data= GetUpload.get_data(cnx)
+                return data
 
 @app.get("/getboundary")
 async def post_process_boundary_fetch(data:PostProcessBoundary):
