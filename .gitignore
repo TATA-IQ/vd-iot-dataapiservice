@@ -165,4 +165,5 @@ cython_debug/
 *.yaml
 .yaml
 config.yaml
-/dataapiservice/config/config.yaml
+/dataapiservice/config
+/dataapiservice/config/
