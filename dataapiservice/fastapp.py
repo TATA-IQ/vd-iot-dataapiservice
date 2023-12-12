@@ -85,14 +85,27 @@ cnx=connection_sql()
 #                                                       password=dbconfig["password"],
 #                                                       host=dbconfig["host"],
 #                                                       database=dbconfig["db"])
-
+def get_local_ip():
+        '''
+        Get the ip of server
+        '''
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            # doesn't even have to be reachable
+            s.connect(("192.255.255.255", 1))
+            IP = s.getsockname()[0]
+        except:
+            IP = "127.0.0.1"
+        finally:
+            s.close()
+        return IP
 def register_service(consul_conf):
     consul_client = consul.Consul(host=consul_conf["host"],port=consul_conf["port"])
     name=socket.gethostname()
     consul_client.agent.service.register(
     "dbapi",service_id=name+"-dbapi-"+consul_conf["env"],
     port=service_conf["port"],
-    address=local_ip,
+    address=get_local_ip(),
     tags=["python","dbapi",consul_conf["env"]]
 )
 
