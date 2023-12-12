@@ -19,20 +19,10 @@ class GetPreProcessConfigDataById():
         query1=f"""SELECT * FROM schedule_master sm
                 left join  pre_process pp on sm.preprocess_id=pp.id
                 inner join usecase uc on sm.usecase_id=uc.usecase_id
-                inner join camera_group_list cgl on cgl.camera_group_id=sm.camera_group_id
-                inner join camera_master cm on cm.camera_id=cgl.camera_id
-                inner join kafka_topics kt on kt.camera_id = cm.camera_id
-                where  sm.is_deleted=0 and uc.is_deleted=0 and cgl.is_deleted=0
-                and cm.is_deleted=0 and kt.is_deleted=0 and
+                
+                where  sm.is_deleted=0 and uc.is_deleted=0 and 
                 pp.id in {preprocess_id}"""
-        query2=f"""SELECT * FROM schedule_master sm
-                left join  pre_process pp on sm.preprocess_id=pp.id
-                inner join usecase uc on sm.usecase_id=uc.usecase_id
-                inner join camera_group_list cgl on cgl.camera_group_id=sm.camera_group_id
-                inner join camera_master cm on cm.camera_id=cgl.camera_id
-                inner join kafka_topics kt on kt.camera_id = cm.camera_id
-                where  sm.is_deleted=0 and uc.is_deleted=0 and cgl.is_deleted=0
-                and cm.is_deleted=0 and kt.is_deleted=0"""
+        
         if camera_group_id is None:
             query=query2
         else:
@@ -50,12 +40,10 @@ class GetPreProcessConfigDataById():
                 for i in resultset:
                     print(i)
                     dictdata={}
-                    dictdata["camera_grouplist_id"]=i[column_names.index('camera_grouplist_id')]
-                    dictdata["camera_group_id"]=i[column_names.index('camera_group_id')] 
-                    #dictdata["pre_config_id"]=i[column_names.index('pre_config_id')]
+                    
                     dictdata["preprocess_id"]=i[column_names.index('preprocess_id')]
                     dictdata["description"]=i[column_names.index('description')]
-                    dictdata["camera_id"]=i[column_names.index('camera_id')]
+                    
                     dictdata["brightness"]=i[column_names.index('brightness')]
                     dictdata["contrast_alpha"]=i[column_names.index('contrast_alpha')]
                     dictdata["contrast_beta"]=i[column_names.index('contrast_beta')]
@@ -82,10 +70,7 @@ class GetPreProcessConfigDataById():
                     dictdata["usecase_id"]=i[column_names.index('usecase_id')]
                     dictdata["usecase_name"]=i[column_names.index('usecase_name')]
                     #dictdata["input_process_id"]=i[column_names.index('input_process_id')]
-                    dictdata["postprocess_id"]=i[column_names.index('postprocess_id')]
-                    dictdata["topic_id"]=i[column_names.index('topic_id')]
-                    dictdata["kafka_id"]=i[column_names.index('kafka_id')]
-                    dictdata["topic_name"]=i[column_names.index('topic_name')]
+                    
                     
                     listresult.append(dictdata)
 

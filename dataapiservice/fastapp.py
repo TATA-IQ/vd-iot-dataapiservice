@@ -6,7 +6,7 @@ from model.camera_config_model import CameraDetails, CameraConfig
 from model.camera_group_model import CameraGroup
 from model.model_config_model import ModelConfig
 from model.model_master_model import ModelMasterEndpoint, ModelMaster
-from model.preprocess_model import PreprocessConfig
+from model.preprocess_model import PreprocessConfig,PreprocessConfigByid
 from model.schedule_model import ScheduleMaster
 from model.usecase_model import UseCaseModel
 from model.model_validate_model import ModelValidation
@@ -38,6 +38,7 @@ from src.post_updateportmodel import UpdateModelPort
 from src.get_incident_summary_details import GetSummaryTimeDetails
 from src.post_updatesummary_time import UpdateIncidentSummaryTime
 from src.get_notificationconfig import GetNotificationDetails
+from src.get_preprocessconfig_byid import GetPreProcessConfigDataById
 from model.incident_summary_time import SummaryTime
 
 
@@ -266,6 +267,20 @@ async def preprocess_config_fetch(data: PreprocessConfig):
         cnx.reconnect()
         cnx.cmd_refresh(1)
         data= GetPreProcessConfigData.get_data(cnx, data.camera_group_id)
+        return data
+@app.get("/getPreprocessByid")
+async def preprocess_config_fetch(data: PreprocessConfigByid):
+#     cnx=connection_sql()
+#     cnx = cnxpool.get_connection()
+#     cnx.close()
+    try:
+        cnx.cmd_refresh(1)
+        data= GetPreProcessConfigDataById.get_data(cnx, data.preprocess_id)
+        return data
+    except:
+        cnx.reconnect()
+        cnx.cmd_refresh(1)
+        data= GetPreProcessConfigData.get_data(cnx, data.preprocess_id)
         return data
 
 
