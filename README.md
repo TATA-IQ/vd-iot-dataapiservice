@@ -1,20 +1,28 @@
 # Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+This is a data api service repo. 
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+# Architecture
+![Architectural Flow](abc.png)
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+1. This module is hosted using uvicorn with multiple workers
+2. FastAPI receives HTTP requests and each worker process the request
+3. This module uses multiple workers for managing to process incoming multiple requests
+4. After processing, an output is sentout as response json
+# Dependency
+1. MySQL Database: Stores configuration and processing data for various levels such as camera configurations, preprocessing, postprocessing, and scheduling managements.
+
+# Installation
+1. Install Python3.9 
+3. poetry install
+
+# Run App
+uvicorn fastapp:app --host=0.0.0.0 --port=8051 --workers=5
+
+# Docker 
+1. Containarization is enabled
+2. change the config.yaml
+2. Navigate to the Dockerfile level
+2. build the container (sudo docker build -t "dataapi" .)
+3. Run the container (sudo docker run -t "dataapi")
