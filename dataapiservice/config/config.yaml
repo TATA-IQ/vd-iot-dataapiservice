@@ -6,7 +6,7 @@ db:
 
 
 consul:
-  host: "127.0.0.1"
+  host: "172.16.0.178"
   port: 8500
   env: "dev"
 register_service:
