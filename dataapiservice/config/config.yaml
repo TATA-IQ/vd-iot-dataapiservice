@@ -10,4 +10,4 @@ consul:
   port: 8500
   env: "dev"
 register_service:
-  port: 8001
+  port: 8000
