@@ -1,5 +1,5 @@
 docs/source
-
+dataapiservice/config/config.yaml
 # From https://raw.githubusercontent.com/github/gitignore/main/Python.gitignore
 
  Byte-compiled / optimized / DLL files
@@ -163,6 +163,5 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 __pycache__
-config/
-dataapiservice/config/
+
 
