@@ -7,5 +7,5 @@ class IncidentVideo(BaseModel):
     
 class UpdateIncidentVideo(BaseModel):
     incident_video_id: Union[str, None] = None
-    status: Union[str, None] = None
+    status: Union[int, None] = None
     message: Union[str, None] = None
