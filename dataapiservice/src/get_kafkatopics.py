@@ -19,6 +19,7 @@ inner join camera_group_list cgl on cgl.camera_id=cm.camera_id and cgl.camera_id
 inner join camera_group cg on cg.camera_group_id=cgl.camera_group_id
 inner join schedule_master sm on sm.camera_group_id=cg.camera_group_id
 where sm.is_deleted=0 and cm.is_deleted=0 and cg.is_deleted=0 and cgl.is_deleted=0"""
+    
         if camera_group_id is None:
             query=query1 
         print(query)

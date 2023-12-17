@@ -3,7 +3,7 @@ from config_parser.parser import Config
 import logging
 from logging.handlers import TimedRotatingFileHandler
 from model.camera_config_model import CameraDetails, CameraConfig
-from model.camera_group_model import CameraGroup
+from model.camera_group_model import CameraGroup,CameraIDs
 from model.model_config_model import ModelConfig
 from model.model_master_model import ModelMasterEndpoint, ModelMaster
 from model.preprocess_model import PreprocessConfig,PreprocessConfigByid
@@ -25,13 +25,15 @@ from src.post_updatemodelurl import UpdateEndPoint, UpdateModelStatus
 from src.get_boundary import GetBoundaryData
 from src.get_classes import GetClassesData
 from src.get_computation import GetComputationData
+from src.get_cameraid import GetModelCamId
 from src.get_incidents import GetIncidentData
 from src.get_postprocess import GetPostProcessConfigData
 from src.get_usecase import GetUsecase
 from src.get_kafkatopics import GetKafkaData
+from src.get_kafkatopics_bycamid import GetKafkaDataByCamid
 from src.get_incident_video_config import GetIncidentVideoData, UpdateIncidentVideoStatus
 from src.get_model_validation import ValidationModel
-from model.kafka_model import KafkaTopics
+from model.kafka_model import KafkaTopics,KafkaTopicsCamId
 from model.model_port_model import ModelPorts, ModelStatus
 from src.get_port_details import GetPortDetails
 from src.post_updateportmodel import UpdateModelPort
@@ -144,7 +146,37 @@ async def model_cameragroup_fetch(data: CameraGroup):
                 cnx, data.location_id, data.customer_id, data.subsite_id, data.zone_id
         )
 
+@app.get("/getCameraId")
+async def model_cameraid_fetch(data: CameraIDs):
+    """
+    This endpoint fetches tcom camera group data.
 
+    Args:
+            data (object): Tcom_CameraGroup data object with parameters.
+            - location_id (int): location id to filter camera groups.
+            - customer_id (int): customer id  to filter.
+            - subsite_id (int): subsite id to filter.
+            - camera_group_id (int): camera_group_id to filter
+
+    Returns:
+            FastAPI JSONResponse of camera group data.
+    """
+    print("-----------cameraid------------")
+#     cnx=connection_sql()
+#     cnx = cnxpool.get_connection()
+
+    print("=====",data)
+    try:
+        cnx.cmd_refresh(1)
+        return GetModelCamId.get_data(
+                cnx, data.location_id, data.customer_id, data.subsite_id, data.zone_id, data.camera_group_id
+        )
+    except:
+        cnx.reconnect()
+        cnx.cmd_refresh(1)
+        return GetModelCamGroup.get_data(
+                cnx, data.location_id, data.customer_id, data.subsite_id, data.zone_id
+        )
 
 @app.get("/getCameraConfig")
 async def camera_config_fetch(data: CameraConfig):
@@ -486,6 +518,24 @@ async def kafka_topics_fetch(data:KafkaTopics):
         except:
                 cnx.reconnect()
                 data= GetKafkaData.get_data(cnx,data.camera_group_id)
+                cnx.cmd_refresh(1)
+                return data
+@app.get("/gettopicsbycamid")
+async def kafka_topicsbycamid_fetch(data:KafkaTopicsCamId):
+        # cnx=connection_sql()
+        # cnx = cnxpool.get_connection()
+
+        print("update===>",data)
+        print("*******",data.camera_id)
+        
+        # cnx.close()
+        try:
+                cnx.cmd_refresh(1)
+                data= GetKafkaDataByCamid.get_data(cnx,data.camera_id)
+                return data
+        except:
+                cnx.reconnect()
+                data= GetKafkaDataByCamid.get_data(cnx,data.camera_id)
                 cnx.cmd_refresh(1)
                 return data
 

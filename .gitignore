@@ -1,5 +1,5 @@
 docs/source
-
+__pycache__
 # From https://raw.githubusercontent.com/github/gitignore/main/Python.gitignore
 dataapiservice/config/config.yaml
  Byte-compiled / optimized / DLL files
