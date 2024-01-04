@@ -8,6 +8,6 @@ db:
 consul:
   host: "172.16.0.178"
   port: 8500
-  env: "devlopment"
+  env: "test"
 register_service:
-  port: 8001
+  port: 8000

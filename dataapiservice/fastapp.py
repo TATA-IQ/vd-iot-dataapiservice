@@ -41,6 +41,7 @@ from src.get_incident_summary_details import GetSummaryTimeDetails
 from src.post_updatesummary_time import UpdateIncidentSummaryTime
 from src.get_notificationconfig import GetNotificationDetails
 from src.get_preprocessconfig_byid import GetPreProcessConfigDataById
+from src.get_modelconfig import GetModelConfigById
 from model.incident_summary_time import SummaryTime
 
 
