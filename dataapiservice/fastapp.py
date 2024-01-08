@@ -42,7 +42,7 @@ from src.post_updatesummary_time import UpdateIncidentSummaryTime
 from src.get_notificationconfig import GetNotificationDetails
 from src.get_preprocessconfig_byid import GetPreProcessConfigDataById
 from model.incident_summary_time import SummaryTime
-
+import time
 
 import mysql.connector
 import socket
@@ -87,6 +87,21 @@ cnx=connection_sql()
 #                                                       password=dbconfig["password"],
 #                                                       host=dbconfig["host"],
 #                                                       database=dbconfig["db"])
+
+def check_service_address(consul_client,service_name,env):
+    
+        
+    try:
+        services=consul_client.catalog.service(service_name)[1]
+        console.info(f" Service Extracted from Cosnul For {service_name} : {services}")
+        for i in services:
+            if env == i["ServiceID"].split("-")[-1]:
+                return i["ServiceID"]
+    except:
+        time.sleep(10)
+        pass
+    return None
+
 def get_local_ip():
         '''
         Get the ip of server
@@ -104,12 +119,27 @@ def get_local_ip():
 def register_service(consul_conf):
     consul_client = consul.Consul(host=consul_conf["host"],port=consul_conf["port"])
     name=socket.gethostname()
-    consul_client.agent.service.register(
-    "dbapi",service_id=name+"-dbapi-"+consul_conf["env"],
-    port=service_conf["port"],
-    address=get_local_ip(),
-    tags=["python","dbapi",consul_conf["env"]]
-)
+    servicecheck=check_service_address(consul_client,"dbapi",consul_conf["env"])
+    if servicecheck is None:
+        consul_client.agent.service.register(
+        "dbapi",service_id=name+"-dbapi-"+consul_conf["env"],
+        port=service_conf["port"],
+        address=get_local_ip(),
+        tags=["python","dbapi",consul_conf["env"]]
+        )
+
+    else:
+        consul_client.agent.service.deregister(servicecheck["ServiceID"])
+        consul_client.agent.service.register(
+        "dbapi",service_id=name+"-dbapi-"+consul_conf["env"],
+        port=service_conf["port"],
+        address=get_local_ip(),
+        tags=["python","dbapi",consul_conf["env"]]
+        )
+
+
+
+
 
 register_service(consul_conf)
 app = FastAPI()
