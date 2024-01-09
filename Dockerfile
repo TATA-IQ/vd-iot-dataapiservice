@@ -19,4 +19,4 @@ RUN apt-get install ffmpeg libsm6 libxext6  -y
 copy dataapiservice /app
 WORKDIR /app
 # RUN mkdir /app/logs
-CMD ["uvicorn", "fastapp:app", "--host", "0.0.0.0", "--port", "8001", "--workers", "5"]
+CMD ["uvicorn", "fastapp:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "5"]

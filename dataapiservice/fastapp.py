@@ -50,6 +50,8 @@ import socket
 import consul
 # from src.parser import Config
 import socket
+from console_logging.console import Console
+console=Console()
 
 config = Config.yamlconfig("config/config.yaml")[0]
 dbconfig=config["db"]
@@ -97,7 +99,8 @@ def check_service_address(consul_client,service_name,env):
         console.info(f" Service Extracted from Cosnul For {service_name} : {services}")
         for i in services:
             if env == i["ServiceID"].split("-")[-1]:
-                return i["ServiceID"]
+                consul_client.agent.service.deregister(i["ServiceID"])
+                # return i["ServiceID"]
     except:
         time.sleep(10)
         pass
@@ -118,10 +121,10 @@ def get_local_ip():
             s.close()
         return IP
 def register_service(consul_conf):
-    consul_client = consul.Consul(host=consul_conf["host"],port=consul_conf["port"])
-    name=socket.gethostname()
-    servicecheck=check_service_address(consul_client,"dbapi",consul_conf["env"])
-    if servicecheck is None:
+        consul_client = consul.Consul(host=consul_conf["host"],port=consul_conf["port"])
+        name=socket.gethostname()
+        servicecheck=check_service_address(consul_client,"dbapi",consul_conf["env"])
+
         consul_client.agent.service.register(
         "dbapi",service_id=name+"-dbapi-"+consul_conf["env"],
         port=service_conf["port"],
@@ -129,14 +132,7 @@ def register_service(consul_conf):
         tags=["python","dbapi",consul_conf["env"]]
         )
 
-    else:
-        consul_client.agent.service.deregister(servicecheck["ServiceID"])
-        consul_client.agent.service.register(
-        "dbapi",service_id=name+"-dbapi-"+consul_conf["env"],
-        port=service_conf["port"],
-        address=get_local_ip(),
-        tags=["python","dbapi",consul_conf["env"]]
-        )
+    
 
 
 
